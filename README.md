@@ -1,0 +1,1 @@
+![CI](https://github.com/cw12292271/IntelligentTestingAssistant/actions/workflows/ci.yml/badge.svg)
