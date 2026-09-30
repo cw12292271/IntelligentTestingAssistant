@@ -6,3 +6,8 @@ python-dotenv
 pydantic>=2.7
 pytest
 httpx
+fastapi
+uvicorn
+sqlalchemy
+requests
+streamlit
