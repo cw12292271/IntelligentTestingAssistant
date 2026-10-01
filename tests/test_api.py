@@ -60,6 +60,6 @@ def test_chat_invalid_api_key(client):
         json={"session_id": "test_001", "message": "hello"},
         headers={"X-API-Key": "wrong-key"},
     )
-    # 如果 FastAPI 端 verify_api_key 配置了 MY_API_KEY，应返回 403
+    # FastAPI 端 verify_api_key 配置了 MY_API_KEY，应返回 403
     # 如果没配置（开发模式放行），此测试可能需要调整
     assert resp.status_code in (200, 403)
