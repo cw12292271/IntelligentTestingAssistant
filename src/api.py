@@ -98,3 +98,12 @@ async def stream_endpoint(req: ChatRequest):
         token_stream(req.message, req.session_id),
         media_type="text/event-stream",
     )
+
+@app.post("/invoke")
+async def invoke():
+    """魔搭探活接口"""
+    return {"status": "ok"}
+
+@app.get("/")
+async def root():
+    return {"message": "智能测试助手 API", "docs": "/docs"}
