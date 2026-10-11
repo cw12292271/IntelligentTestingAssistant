@@ -110,9 +110,19 @@ async def root():
 
 from src.rag.chain import build_rag_chain
 
-rag_chain = build_rag_chain()
+# rag_chain = build_rag_chain()
+_rag_chain = None
+
+def get_rag_chain():
+    global _rag_chain
+    if _rag_chain is None:
+        from src.rag.chain import build_rag_chain
+        _rag_chain = build_rag_chain()
+    return _rag_chain
 
 @app.post("/rag/query")
 async def rag_query(req: ChatRequest, _: str = Depends(verify_api_key)):
-    answer = rag_chain(req.message)
+    chain = get_rag_chain()           
+    answer = chain(req.message)
+    # answer = rag_chain(req.message)
     return {"reply": answer}
