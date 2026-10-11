@@ -9,14 +9,17 @@ RAG_PROMPT = ChatPromptTemplate.from_messages([
 ])
 
 
-def build_rag_chain(k: int = 5):
-    retriever = get_retriever(k)
+def build_rag_chain(k: int = 5, score_threshold: float = 0.0):
+    retriever = get_retriever(k, score_threshold)
     llm = get_llm()
 
     def rag_answer(question: str) -> str:
-        docs = retriever(question)
-        context = "\n\n".join(d.page_content for d in docs)
-        prompt = RAG_PROMPT.format_messages(context=context, question=question)
-        return llm.invoke(prompt).content
+        try:
+            docs = retriever(question)
+            context = "\n\n".join(d.page_content for d in docs)
+            prompt = RAG_PROMPT.format_messages(context=context, question=question)
+            return llm.invoke(prompt).content
+        except Exception as e:
+            return f"调用失败：{e}"
 
     return rag_answer

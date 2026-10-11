@@ -11,3 +11,7 @@ uvicorn
 sqlalchemy
 requests
 streamlit
+langchain-milvus
+pymilvus
+docx2txt
+pypdf

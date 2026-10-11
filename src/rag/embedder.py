@@ -13,3 +13,11 @@ def get_embedding_model() -> Embeddings :
         base_url=os.getenv("ARK_BASE_URL"),
         check_embedding_ctx_length=False,          # 关键
     )
+
+def get_bge_embedding_model():
+    return init_embeddings(
+        model="BAAI/bge-m3",
+        api_key=os.getenv("SILICONFLOW_API_KEY"),
+        base_url=os.getenv("SILICONFLOW_BASE_URL"),
+        check_embedding_ctx_length=False,
+    )

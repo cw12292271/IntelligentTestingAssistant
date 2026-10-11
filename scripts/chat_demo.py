@@ -1,5 +1,10 @@
 """命令行对话入口。"""
+from src.models import TestCase
 from src.chain import conversation, structured_llm
+# 加类型标注消除警告
+from langchain_core.runnables import Runnable
+structured_llm: Runnable = structured_llm
+
 
 def main():
     session_id = "cli_session_001"
@@ -21,7 +26,7 @@ def main():
 
         # 如果用户说“生成用例”，走结构化输出
         if "生成用例" in user_input or "测试用例" in user_input:
-            case = structured_llm.invoke(user_input)
+            case: TestCase = structured_llm.invoke(user_input)   # ← 加类型标注
             print("\n[结构化用例]")
             print(f"  标题: {case.title}")
             print(f"  前置: {case.precondition}")

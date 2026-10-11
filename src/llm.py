@@ -19,5 +19,6 @@ def get_llm(temperature: float = 0.7):
         api_key=os.getenv("ARK_API_KEY"),
         base_url=os.getenv("ARK_BASE_URL"),
         temperature=temperature,
+        request_timeout=30,        # ← 30 秒超时，加在这里
     )
     return model

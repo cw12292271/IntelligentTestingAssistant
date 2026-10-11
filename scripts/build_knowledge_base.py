@@ -4,9 +4,7 @@ from src.rag.loader import load_documents
 from src.rag.splitter import get_splitter
 from src.rag.vectorstore import add_documents
 
-
 splitter = get_splitter()
-
 all_docs = []
 for f in Path("asset/rag_docs").glob("*"):
     if f.suffix.lower() in [".docx", ".txt", ".pdf", ".csv"]:

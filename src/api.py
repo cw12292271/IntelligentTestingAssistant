@@ -107,3 +107,12 @@ async def invoke():
 @app.get("/")
 async def root():
     return {"message": "智能测试助手 API", "docs": "/docs"}
+
+from src.rag.chain import build_rag_chain
+
+rag_chain = build_rag_chain()
+
+@app.post("/rag/query")
+async def rag_query(req: ChatRequest, _: str = Depends(verify_api_key)):
+    answer = rag_chain(req.message)
+    return {"reply": answer}

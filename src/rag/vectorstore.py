@@ -4,7 +4,7 @@ from typing import List
 from dotenv import load_dotenv
 from pymilvus import MilvusClient, DataType
 from langchain_core.documents import Document
-from src.rag.embedder import get_embedding_model
+from src.rag.embedder import get_embedding_model, get_bge_embedding_model
 
 load_dotenv(override=True)
 
@@ -20,7 +20,6 @@ def _get_client():
     existed_databases = client.list_databases()
     if DB_NAME not in existed_databases:
         client.create_database(db_name=DB_NAME)
-
     # 切换到指定的数据库
     client.use_database(db_name=DB_NAME)
     return client
@@ -65,10 +64,11 @@ def add_documents(docs: List[Document]):
     print(f"已插入 {len(data)} 条到 {DB_NAME}.{COLLECTION_NAME}")
 
 
-def get_retriever(k: int = 5):
+def get_retriever(k: int = 5, score_threshold: float = 0.0):
     """返回一个函数：输入问题，返回相关 Document 列表。"""
     client = _get_client()
     embedder = get_embedding_model()
+    # embedder = get_bge_embedding_model()
 
     def retrieve(question: str) -> List[Document]:
         q_vec = embedder.embed_query(question)
@@ -76,8 +76,15 @@ def get_retriever(k: int = 5):
             collection_name=COLLECTION_NAME,
             data=[q_vec],
             limit=k,
-            output_fields=["text"],
+            output_fields=["text", "distance"],   
         )
-        return [Document(page_content=hit["entity"]["text"]) for hit in results[0]]
+        docs = []
+        for hit in results[0]:
+            score = hit["distance"]
+            if score < score_threshold:
+                continue
+            docs.append(Document(page_content=hit["entity"]["text"]))
+        return docs
+        # return [Document(page_content=hit["entity"]["text"]) for hit in results[0]]
 
     return retrieve
