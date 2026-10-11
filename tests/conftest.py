@@ -12,6 +12,7 @@ import os
 os.environ.setdefault("ARK_MODEL", "test-model")
 os.environ.setdefault("ARK_API_KEY", "test-key")
 os.environ.setdefault("MY_API_KEY", "test-key")
+os.environ.setdefault("ARK_EMBEDDING_MODEL", "test-embedding")
 
 # ---- 关键：StaticPool + 同一个连接，让内存库跨会话可见 ----
 TEST_DATABASE_URL = "sqlite:///:memory:"
