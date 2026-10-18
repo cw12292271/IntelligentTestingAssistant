@@ -12,6 +12,7 @@ def get_embedding_model() -> Embeddings :
         api_key=os.getenv("ARK_API_KEY"),
         base_url=os.getenv("ARK_BASE_URL"),
         check_embedding_ctx_length=False,          # 关键
+        chunk_size=100,   # ← 加这行，每次最多发 100 条
     )
 
 def get_bge_embedding_model():

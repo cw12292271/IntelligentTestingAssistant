@@ -13,7 +13,7 @@ DB_NAME = "rag_ita"
 COLLECTION_NAME = "test_knowledge"
 
 
-def _get_client():
+def get_milvus_client():
     client = MilvusClient(MILVUS_URI)
 
     # 查询已有的数据库，如果不存在指定名的数据库，则进行创建
@@ -33,6 +33,7 @@ def _ensure_collection(client, dim: int):
     schema.add_field("id", DataType.INT64, is_primary=True)
     schema.add_field("vector", DataType.FLOAT_VECTOR, dim=dim)
     schema.add_field("text", DataType.VARCHAR, max_length=65535)
+    schema.add_field("metadata", DataType.JSON)   # ← 新增 JSON 字段存元数据
     index_params = client.prepare_index_params()
     index_params.add_index(
         field_name="vector",
@@ -55,10 +56,19 @@ def add_documents(docs: List[Document]):
     vectors = embedder.embed_documents(texts)
     dim = len(vectors[0])
 
-    client = _get_client()
+    client = get_milvus_client()
     _ensure_collection(client, dim)
 
-    data = [{"vector": v, "text": t} for v, t in zip(vectors, texts)]
+    # data = [{"vector": v, "text": t} for v, t in zip(vectors, texts)]
+    data = []
+    for v, d in zip(vectors, docs):
+        meta = d.metadata or {}
+        # 把 metadata 转成 JSON 字符串（Milvus JSON 字段可能要求这样）
+        data.append({
+            "vector": v,
+            "text": d.page_content,
+            "metadata": meta,
+        })
     client.insert(collection_name=COLLECTION_NAME, data=data)
     client.flush(COLLECTION_NAME)   # 强制刷盘
     print(f"已插入 {len(data)} 条到 {DB_NAME}.{COLLECTION_NAME}")
@@ -66,7 +76,7 @@ def add_documents(docs: List[Document]):
 
 def get_retriever(k: int = 5, score_threshold: float = 0.0):
     """返回一个函数：输入问题，返回相关 Document 列表。"""
-    client = _get_client()
+    client = get_milvus_client()
     embedder = get_embedding_model()
     # embedder = get_bge_embedding_model()
 
@@ -76,14 +86,17 @@ def get_retriever(k: int = 5, score_threshold: float = 0.0):
             collection_name=COLLECTION_NAME,
             data=[q_vec],
             limit=k,
-            output_fields=["text", "distance"],   
+            output_fields=["text", "metadata", "distance"],
         )
         docs = []
         for hit in results[0]:
             score = hit["distance"]
             if score < score_threshold:
                 continue
-            docs.append(Document(page_content=hit["entity"]["text"]))
+            # docs.append(Document(page_content=hit["entity"]["text"]))
+            text = hit["entity"]["text"]
+            meta = hit["entity"].get("metadata", {})
+            docs.append(Document(page_content=text, metadata=meta))
         return docs
         # return [Document(page_content=hit["entity"]["text"]) for hit in results[0]]
 
