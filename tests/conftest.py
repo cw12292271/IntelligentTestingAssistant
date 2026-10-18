@@ -1,4 +1,14 @@
 """pytest 共享 fixture：覆盖外部依赖。"""
+import sys
+from unittest.mock import MagicMock
+
+# 🌟 核心修复：在导入 src.api 之前，Mock 掉所有重依赖
+sys.modules["FlagEmbedding"] = MagicMock()
+sys.modules["torch"] = MagicMock()  # 如果 torch 也报错可以加上
+
+# 劫持 reranker 模块，防止它真正去加载模型
+mock_reranker = MagicMock()
+sys.modules["src.rag.reranker"] = mock_reranker
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
