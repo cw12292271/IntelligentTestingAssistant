@@ -10,3 +10,4 @@ ms_deploy.json
 check_db.py
 notebooks/
 .gitattributes
+node_modules

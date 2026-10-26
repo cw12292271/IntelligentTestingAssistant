@@ -38,7 +38,7 @@ def _load_all_docs() -> List[Document]:
             continue
         meta = r.get("metadata", {})
         docs.append(Document(page_content=text, metadata=meta))   # ← 带上 metadata
-    print(f">>> 从 {DB_NAME}.{COLLECTION_NAME} 加载了 {len(docs)} 条文档作为 BM25 语料")
+    # print(f">>> 从 {DB_NAME}.{COLLECTION_NAME} 加载了 {len(docs)} 条文档作为 BM25 语料")
     return docs
 
 

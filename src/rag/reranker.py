@@ -22,16 +22,18 @@ def get_reranker():
     global _reranker
     if _reranker is None:
         use_cuda = torch.cuda.is_available()
-        print(f">>> 加载 bge-reranker-base, 设备: {'cuda' if use_cuda else 'cpu'}...")
+        # print(f">>> 加载 bge-reranker-base, 设备: {'cuda' if use_cuda else 'cpu'}...")
+        local_path = r"D:\hf_cache\hub\models--BAAI--bge-reranker-base\snapshots\2cfc18c9415c912f9d8155881c133215df768a70"
         _reranker = FlagReranker(
-            "BAAI/bge-reranker-base",          # 小模型，2GB 显存够用
+            # "BAAI/bge-reranker-base",          # 小模型，2GB 显存够用
+            local_path,                          # 传入绝对路径
             use_fp16=use_cuda,                  # GPU 用 fp16
             devices="cuda" if use_cuda else "cpu",
             # "BAAI/bge-reranker-v2-m3",
             # _MODEL_PATH,
             # use_fp16=True,          # 加速推理
         )
-        print(">>> 加载完成")
+        # print(">>> 加载完成")
     return _reranker
 
 # 用 lru_cache 缓存打分结果：同样的 (query, doc_texts) 第二次调用直接返回缓存，不重复计算
